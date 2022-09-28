@@ -1,0 +1,69 @@
+{% extends 'base.html' %} {% block content %}
+<h1>{% block title %} Car Info {% endblock %}</h1>
+<form method="post">
+  <label for="CAR_ID">Car ID</label>
+  <br />
+  <input
+    type="text"
+    name="CAR_ID"
+    placeholder="Car ID"
+    value="{{ request.form['CAR_ID'] }}"
+  />
+  <br />
+  <br />
+  <button type="submit">Search</button>
+  <br />
+  <p>Car ID: {{ CAR_ID }}</p>
+  <input type="hidden" name="CAR_ID" value="{{ CAR_ID }}" id="CAR_ID" />
+  <p>Car Name: {{ CAR_NAME }}</p>
+  <p>Car Brand: {{ CAR_BRAND }}</p>
+  <p>Car Model: {{ CAR_MODEL }}</p>
+  <p>Car Year: {{ CAR_YEAR }}</p>
+  <p>Car Plate: {{ CAR_PLATE }}</p>
+</form>
+<!--add edit service history button with hiden form-->
+<form method="post" action="{{ url_for('CheckServiceHistory') }}">
+    <input type="hidden" name="CAR_ID" value="{{ CAR_ID }}" id="CAR_ID" />
+    <button type="submit">Check Service History</button>
+</form>
+<br>
+<br>
+<!--add delete button for car_id-->
+<button onclick="Delete()">Delete</button>
+<script>
+  function Delete() {
+    //write to console
+    console.log("Delete button clicked");
+    CAR_ID = document.getElementById("CAR_ID").value;
+    console.log(CAR_ID);
+    //send delete request to server
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("DELETE", "{{ url_for('CheckCarInfo') }}", true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.send("CAR_ID=" + CAR_ID);
+    //add alert
+    alert("Car deleted");
+    //add redirect
+    window.location.href = "{{ url_for('CheckCarInfo') }}";
+  }
+</script>
+
+<!--
+<button onclick="CheckServiceHistory()">Service History</button>
+<script>
+  function CheckServiceHistory() {
+    //write to console
+    console.log("Check Service History button clicked");
+    CAR_ID = document.getElementById("CAR_ID").value;
+    console.log(CAR_ID);
+    //send post request to server
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "{{ url_for('CheckServiceHistory') }}", true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.send("CAR_ID=" + CAR_ID);
+    //add redirect
+    //window.location.href = "{{ url_for('CheckServiceHistory') }}";
+  }
+</script>
+-->
+{% endblock %}
