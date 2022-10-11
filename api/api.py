@@ -158,8 +158,8 @@ def event():
         write_data(query)
         return "OK"
     elif request.method == 'DELETE':
-        #event_id = request.args.get('EVENT_ID')
-        event_id = request.form['EVENT_ID']
+        event_id = request.args.get('EVENT_ID')
+        #event_id = request.form['EVENT_ID']
         query = "DELETE FROM [CAR_HISTORY].[dbo].[EVENTS] WHERE ID = {}".format(event_id)
         print(query)
         write_data(query)
