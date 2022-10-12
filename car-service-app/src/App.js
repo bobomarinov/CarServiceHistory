@@ -11,7 +11,9 @@ function App() {
   const [carEventData, setCarEventData] = useState('');
   const [carData, setCarData] = useState('');
 
-
+  function refreshPage() {
+    window.location.reload(false);
+  }
 
   const handleChange = event => {
     setCarId(event.target.value);
@@ -68,6 +70,7 @@ function App() {
 
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <br />
+        <a href="#" onClick={refreshPage}>Refresh Page</a>
         <h1>Car Service App</h1>
         <input
           type={'text'}
@@ -75,11 +78,17 @@ function App() {
           name={'car-id'}
           value={carId}
           onChange={handleChange}
+          onKeyPress={event => {
+            if (event.key === 'Enter') {
+              getServicehistory();
+            }
+          }}
         />
         <button onClick={() => { getServicehistory() }}>Get Car Data</button>
 
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        
         <h2>Car Details</h2>
         {Object.keys(carData).length > 0 && (
 
