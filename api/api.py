@@ -1,25 +1,26 @@
-from http.client import OK
 import logging
-from flask import Flask
-from flask_restful import Resource, Api, reqparse
 import pandas as pd
-import pyodbc 
-from flask import request,render_template
+import pyodbc
+from flask import Flask
+from flask import request, render_template
 from flask_cors import CORS
+from flask_restful import Resource, Api, reqparse
+from http.client import OK
 
+server = 'localhost'
+database = 'CAR_HISTORY'
+Trusted_Connection = 'yes'
 
-server = 'localhost' 
-database = 'CAR_HISTORY' 
-Trusted_Connection = 'yes' 
-
-cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';Trusted_Connection='+Trusted_Connection+';')
+cnxn = pyodbc.connect(
+    'DRIVER={ODBC Driver 17 for SQL Server};SERVER=' + server + ';DATABASE=' + database + ';Trusted_Connection=' + Trusted_Connection + ';')
 cursor = cnxn.cursor()
 
 app = Flask(__name__)
 api = Api(app)
 CORS(app)
 
-#add to header to allow cross origin requests
+
+# add to header to allow cross origin requests
 @app.after_request
 def after_request(response):
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -31,18 +32,20 @@ def after_request(response):
 logging.getLogger('flask_cors').level = logging.DEBUG
 
 
-#function to read data from database
+# function to read data from database
 def get_data(query):
     df = pd.read_sql_query(query, cnxn)
     return df
+
+
 def write_data(query):
     cursor.execute(query)
     cnxn.commit()
 
-#API functions
-#by car id
-@app.route('/api/cars', methods=['GET', 'POST', 'DELETE', 'PUT'])
 
+# API functions
+# by car id
+@app.route('/api/cars', methods=['GET', 'POST', 'DELETE', 'PUT'])
 def car():
     if request.method == 'GET':
         print(request.args)
@@ -57,9 +60,9 @@ def car():
             df = get_data(query)
             return df.to_json(orient='records')
         else:
-            return "No car id provided"     
+            return "No car id provided"
     elif request.method == 'POST':
-         #if request.args is not emtpy
+        # if request.args is not emtpy
 
         if request.args:
             print("Using args")
@@ -68,7 +71,8 @@ def car():
             car_model = request.args.get('CAR_MODEL')
             car_year = request.args.get('CAR_YEAR')
             car_plate = request.args.get('CAR_PLATE')
-            query = "INSERT INTO [CAR_HISTORY].[dbo].[CARS] (CAR_NAME, CAR_BRAND, CAR_MODEL, CAR_YEAR, CAR_PLATE) VALUES ('{}', '{}', '{}', '{}', '{}')".format(car_name, car_brand, car_model, car_year, car_plate)
+            query = "INSERT INTO [CAR_HISTORY].[dbo].[CARS] (CAR_NAME, CAR_BRAND, CAR_MODEL, CAR_YEAR, CAR_PLATE) VALUES ('{}', '{}', '{}', '{}', '{}')".format(
+                car_name, car_brand, car_model, car_year, car_plate)
             write_data(query)
             return "OK"
         elif request.form:
@@ -78,7 +82,8 @@ def car():
             car_model = request.form['CAR_MODEL']
             car_year = request.form['CAR_YEAR']
             car_plate = request.form['CAR_PLATE']
-            query = "INSERT INTO [CAR_HISTORY].[dbo].[CARS] (CAR_NAME, CAR_BRAND, CAR_MODEL, CAR_YEAR, CAR_PLATE) VALUES ('{}', '{}', '{}', '{}', '{}')".format(car_name, car_brand, car_model, car_year, car_plate)
+            query = "INSERT INTO [CAR_HISTORY].[dbo].[CARS] (CAR_NAME, CAR_BRAND, CAR_MODEL, CAR_YEAR, CAR_PLATE) VALUES ('{}', '{}', '{}', '{}', '{}')".format(
+                car_name, car_brand, car_model, car_year, car_plate)
             write_data(query)
             return "OK"
         else:
@@ -126,17 +131,19 @@ def car():
             query = "UPDATE [CAR_HISTORY].[dbo].[CARS] SET CAR_PLATE = '{}' WHERE ID = {}".format(car_plate, car_id)
             write_data(query)
         return "OK"
-#all cars
-@app.route('/api/cars/all', methods=['GET'])
 
+
+# all cars
+@app.route('/api/cars/all', methods=['GET'])
 def cars():
     query = "SELECT * FROM [CAR_HISTORY].[dbo].[CARS]"
     df = get_data(query)
     return df.to_json(orient='records', date_format='iso')
-#by event id
+
+
+# by event id
 
 @app.route('/api/events', methods=['GET', 'POST', 'DELETE', 'PUT'])
-
 def event():
     if request.method == 'GET':
         event_id = request.args.get('EVENT_ID')
@@ -153,13 +160,14 @@ def event():
         next_event_date = request.args.get('NEXT_EVENT_DATE')
         next_event_millage = request.args.get('NEXT_EVENT_MILLAGE')
 
-        query = "INSERT INTO [CAR_HISTORY].[dbo].[EVENTS] (CAR_ID, EVENT_DATE, EVENT_MILLAGE, EVENT_DESCRITION, EVENT_REPEATABLE, NEXT_EVENT_DATE, NEXT_EVENT_MILLAGE) VALUES ({}, '{}', {}, '{}', {}, '{}', {})".format(car_id, event_date, event_millage, event_descrition, event_repeatable, next_event_date, next_event_millage)
+        query = "INSERT INTO [CAR_HISTORY].[dbo].[EVENTS] (CAR_ID, EVENT_DATE, EVENT_MILLAGE, EVENT_DESCRITION, EVENT_REPEATABLE, NEXT_EVENT_DATE, NEXT_EVENT_MILLAGE) VALUES ({}, '{}', {}, '{}', {}, '{}', {})".format(
+            car_id, event_date, event_millage, event_descrition, event_repeatable, next_event_date, next_event_millage)
         print(query)
         write_data(query)
         return "OK"
     elif request.method == 'DELETE':
         event_id = request.args.get('EVENT_ID')
-        #event_id = request.form['EVENT_ID']
+        # event_id = request.form['EVENT_ID']
         query = "DELETE FROM [CAR_HISTORY].[dbo].[EVENTS] WHERE ID = {}".format(event_id)
         print(query)
         write_data(query)
@@ -173,51 +181,59 @@ def event():
         if request.args.get("EVENT_DATE") is not None:
             event_date = request.args.get('EVENT_DATE')
             event_id = request.args.get('EVENT_ID')
-            query = "UPDATE [CAR_HISTORY].[dbo].[EVENTS] SET EVENT_DATE = '{}' WHERE ID = {}".format(event_date, event_id)
+            query = "UPDATE [CAR_HISTORY].[dbo].[EVENTS] SET EVENT_DATE = '{}' WHERE ID = {}".format(event_date,
+                                                                                                     event_id)
             write_data(query)
         if request.args.get("EVENT_MILLAGE") is not None:
             event_millage = request.args.get('EVENT_MILLAGE')
             event_id = request.args.get('EVENT_ID')
-            query = "UPDATE [CAR_HISTORY].[dbo].[EVENTS] SET EVENT_MILLAGE = {} WHERE ID = {}".format(event_millage, event_id)
+            query = "UPDATE [CAR_HISTORY].[dbo].[EVENTS] SET EVENT_MILLAGE = {} WHERE ID = {}".format(event_millage,
+                                                                                                      event_id)
             write_data(query)
         if request.args.get("EVENT_DESCRITION") is not None:
             event_descrition = request.args.get('EVENT_DESCRITION')
             event_id = request.args.get('EVENT_ID')
-            query = "UPDATE [CAR_HISTORY].[dbo].[EVENTS] SET EVENT_DESCRITION = '{}' WHERE ID = {}".format(event_descrition, event_id)
+            query = "UPDATE [CAR_HISTORY].[dbo].[EVENTS] SET EVENT_DESCRITION = '{}' WHERE ID = {}".format(
+                event_descrition, event_id)
             write_data(query)
         if request.args.get("EVENT_REPEATABLE") is not None:
             event_repeatable = request.args.get('EVENT_REPEATABLE')
             event_id = request.args.get('EVENT_ID')
-            query = "UPDATE [CAR_HISTORY].[dbo].[EVENTS] SET EVENT_REPEATABLE = {} WHERE ID = {}".format(event_repeatable, event_id)
+            query = "UPDATE [CAR_HISTORY].[dbo].[EVENTS] SET EVENT_REPEATABLE = {} WHERE ID = {}".format(
+                event_repeatable, event_id)
             write_data(query)
         if request.args.get("NEXT_EVENT_DATE") is not None:
             next_event_date = request.args.get('NEXT_EVENT_DATE')
             event_id = request.args.get('EVENT_ID')
-            query = "UPDATE [CAR_HISTORY].[dbo].[EVENTS] SET NEXT_EVENT_DATE = '{}' WHERE ID = {}".format(next_event_date, event_id)
+            query = "UPDATE [CAR_HISTORY].[dbo].[EVENTS] SET NEXT_EVENT_DATE = '{}' WHERE ID = {}".format(
+                next_event_date, event_id)
             write_data(query)
         if request.args.get("NEXT_EVENT_MILLAGE") is not None:
             next_event_millage = request.args.get('NEXT_EVENT_MILLAGE')
             event_id = request.args.get('EVENT_ID')
-            query = "UPDATE [CAR_HISTORY].[dbo].[EVENTS] SET NEXT_EVENT_MILLAGE = {} WHERE ID = {}".format(next_event_millage, event_id)
+            query = "UPDATE [CAR_HISTORY].[dbo].[EVENTS] SET NEXT_EVENT_MILLAGE = {} WHERE ID = {}".format(
+                next_event_millage, event_id)
             write_data(query)
         return "OK"
-#all events
-@app.route('/api/events/all', methods=['GET'])
 
+
+# all events
+@app.route('/api/events/all', methods=['GET'])
 def events():
     query = "SELECT * FROM [CAR_HISTORY].[dbo].[EVENTS]"
     df = get_data(query)
     return df.to_json(orient='records', date_format='iso')
-#all events by car id
-@app.route('/api/events/car', methods=['GET'])
 
+
+# all events by car id
+@app.route('/api/events/car', methods=['GET'])
 def events_car():
     if request.args.get("CAR_ID"):
         car_id = request.args.get('CAR_ID')
         query = "SELECT * FROM [CAR_HISTORY].[dbo].[EVENTS] WHERE CAR_ID = {}".format(car_id)
         df = get_data(query)
         return df.to_json(orient='records', date_format='iso')
-    elif request.form['CAR_ID']:        
+    elif request.form['CAR_ID']:
         car_id = request.form['CAR_ID']
         query = "SELECT * FROM [CAR_HISTORY].[dbo].[EVENTS] WHERE CAR_ID = {}".format(car_id)
         df = get_data(query)
@@ -225,9 +241,7 @@ def events_car():
         return df.to_json(orient='records', date_format='iso')
     else:
         return "ERROR"
-    
 
 
 if __name__ == '__main__':
-    app.run(debug=True,host= '0.0.0.0', port=5000)
-
+    app.run(debug=True, host='0.0.0.0', port=5000)
