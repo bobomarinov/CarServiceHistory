@@ -1,13 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
+import CarInfo from './CarInfo';
+import CarAdd from './CarAdd'
+import EventAdd from './EventAdd';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App/>
+    <EventAdd/>
   </React.StrictMode>
 );
 
