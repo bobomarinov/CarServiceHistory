@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %}  Menu {% endblock %}</h1>
+    <!--add link to AddCar-->
+    <a href="{{ url_for('AddCar') }}">Add Car</a>
+    <!--add link to CheckCarInfo-->
+    <br>
+    <br>
+    <br>
+    <a href="{{ url_for('CheckCarInfo') }}">Check Car Info</a>
+    <br>
+    
+
+{% endblock %}
