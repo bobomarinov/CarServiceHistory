@@ -74,7 +74,13 @@ def car():
             query = "INSERT INTO [CAR_HISTORY].[dbo].[CARS] (CAR_NAME, CAR_BRAND, CAR_MODEL, CAR_YEAR, CAR_PLATE) VALUES ('{}', '{}', '{}', '{}', '{}')".format(
                 car_name, car_brand, car_model, car_year, car_plate)
             write_data(query)
-            return "OK"
+            #get the id of the car
+            query = "SELECT ID FROM [CAR_HISTORY].[dbo].[CARS] WHERE CAR_NAME = '{}' AND CAR_BRAND = '{}' AND CAR_MODEL = '{}' AND CAR_YEAR = '{}' AND CAR_PLATE = '{}'".format(
+                car_name, car_brand, car_model, car_year, car_plate)
+            df = get_data(query)
+            car_id = df['ID'][0]
+            return str(car_id)
+
         elif request.form:
             print("Using form")
             car_name = request.form['CAR_NAME']
