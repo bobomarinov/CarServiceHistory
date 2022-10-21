@@ -12,7 +12,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<CarInfo />} />
-        <Route path="/add-car" element={<CarAdd />} />
+        <Route path="/add-car" element={<CarAdd />} />C
         <Route path="/add-event" element={<EventAdd />} />y
       </Routes>
     </BrowserRouter>

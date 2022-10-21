@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import {useState} from 'react';
 import axios from 'axios';
+//import css
+import './carInfo.css';
+import {Link} from 'react-router-dom';
 
 
 function CarInfo() {
     const [carId, setCarId] = useState('');
     const [carEventData, setCarEventData] = useState('');
     const [carData, setCarData] = useState('');
+
+    let address = '78.130.158.235';
 
     const refreshPage = () => {
         window.location.reload();
@@ -18,7 +23,7 @@ function CarInfo() {
 
     const getCarData = () => {
         axios
-            .get(`http://localhost:5000/api/cars?CAR_ID=${carId}`)
+            .get(`http://${address}:5000/api/cars?CAR_ID=${carId}`)
             .then(response => {
                 console.log('Car Data:', response.data);
                 setCarData(response.data);
@@ -30,7 +35,7 @@ function CarInfo() {
 
     const deleteCar = () => {
         axios
-            .delete(`http://localhost:5000/api/cars?CAR_ID=${carId}`)
+            .delete(`http://${address}:5000/api/cars?CAR_ID=${carId}`)
             .then(response => {
                 console.log('Car Data:', response.data);
                 alert('Car deleted successfully');
@@ -43,7 +48,7 @@ function CarInfo() {
 
     const getServicehistory = () => {
         axios
-            .get(`http://localhost:5000/api/events/car?CAR_ID=${carId}`)
+            .get(`http://${address}:5000/api/events/car?CAR_ID=${carId}`)
             .then((res) => {
                 setCarEventData(res.data);
                 getCarData();
@@ -55,7 +60,7 @@ function CarInfo() {
 
     const deleteServicehistory = (eventId) => {
         axios
-            .delete(`http://localhost:5000/api/events?EVENT_ID=${eventId}`)
+            .delete(`http://${address}:5000/api/events?EVENT_ID=${eventId}`)
             .then((res) => {
                 console.log(res);
                 getServicehistory();
@@ -81,29 +86,45 @@ function CarInfo() {
             }}>
                 <a href="#" onClick={refreshPage}>Refresh Page</a>
                 <h1>Car Service App</h1>
-                
 
-                <div>
-                    <input type={'text'} id={'car-id'} name={'car-id'} value={carId} onChange={handleChange} onKeyPress={event => {
-                        if (event.key === 'Enter') {
-                            getServicehistory();
-                        }
-                    }} />
+
+                <div style={{
+                    alignContent: 'center',
+                    margin: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    width: '10%'
+                }}>
+                    <input type={'text'} id={'car-id'} name={'car-id'} value={carId} onChange={handleChange}
+                           onKeyPress={event => {
+                               if (event.key === 'Enter') {
+                                   getServicehistory();
+                               }
+                           }}/>
                     <button onClick={() => {
                         getServicehistory()
                     }}>Get Car Data
                     </button>
                 </div>
-                <div><button onClick={() => {
-                    window.location.href = '/add-car';
-                }}>Add Car
-                </button></div>
+
+                <div style={{
+                    display: "flex",
+                    alignContent: "center",
+                    flexDirection: 'column',
+                    alignItems: 'center'
+                }}>
+                    <button onClick={() => {
+                        window.location.href = '/add-car';
+                    }}>Add Car
+                    </button>
+                </div>
             </div>
-           
+
             <div style={{
                 display: 'flex',
                 flexDirection: 'column',
-                alignItems: 'center'
+                alignItems: 'center',
+                width: '80%'
             }}>
 
                 <h2>Car Details</h2>
@@ -111,76 +132,85 @@ function CarInfo() {
 
                     <div style={{
                         margin: 'auto',
-                        width: '50%',
+                        display: 'flex',
+                        width: '80%',
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        fontSize: '20px'
+                        alignContent: 'center',
+                        fontSize: '15px',
+                        fontFamily: 'system-ui',
+                        flexDirection: 'column'
                     }}>
-                        <p style={{ border: '1px solid black' }}>Car ID: {carData[0]["ID"]}</p>
-                        <p style={{ border: '1px solid black' }}>Car Name: {carData[0]["CAR_NAME"]}</p>
-                        <p style={{ border: '1px solid black' }}>Car Brand: {carData[0]["CAR_BRAND"]}</p>
-                        <p style={{ border: '1px solid black' }}>Car Model: {carData[0]["CAR_MODEL"]}</p>
-                        <p style={{ border: '1px solid black' }}>Car Year: {carData[0]["CAR_YEAR"]}</p>
-                        <p style={{ border: '1px solid black' }}>Car Plate: {carData[0]["CAR_PLATE"]}</p>
-                        <button onClick={() => { deleteCar(carData[0]["ID"]) }}>Delete Car</button>
-                        <button onClick={() => { window.location.href = `/edit-car/${carData[0]["ID"]}` }}>Edit Car</button>
+                        <div>Car ID: {carData[0]["ID"]}</div>
+                        <div>Car Name: {carData[0]["CAR_NAME"]}</div>
+                        <div>Car Brand: {carData[0]["CAR_BRAND"]}</div>
+                        <div>Car Model: {carData[0]["CAR_MODEL"]}</div>
+                        <div>Car Year: {carData[0]["CAR_YEAR"]}</div>
+                        <div>Car Plate: {carData[0]["CAR_PLATE"]}</div>
+                        <button onClick={() => {
+                            deleteCar(carData[0]["ID"])
+                        }}>Delete Car
+                        </button>
+                        <button onClick={() => {
+                            window.location.href = `/edit-car/${carData[0]["ID"]}`
+                        }}>Edit Car
+                        </button>
                     </div>
                 )}
             </div>
-
-                
-            
-
 
 
             <div style={{
                 display: 'flex',
                 margin: 'auto',
-                width: '50%',
+                width: '80%',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                fontSize: '20px',
+                fontSize: '16px',
                 flexDirection: 'column'
             }}>
+
+                <h2>Service History</h2>
                 <button onClick={() => {
                     window.location.href = '/add-event';
                 }}>Add Service Event
+
+
                 </button>
-                <h2>Service History</h2>
                 <table>
                     <thead>
-                        <tr>
-                            <th style={{ border: '1px solid black' }}>Car ID</th>
-                            <th style={{ border: '1px solid black' }}>Event ID</th>
-                            <th style={{ border: '1px solid black' }}>Event Description</th>
-                            <th style={{ border: '1px solid black' }}>Event Date</th>
-                            <th style={{ border: '1px solid black' }}>Event Mileage</th>
-                            <th style={{ border: '1px solid black' }}>Repeatable</th>
-                            <th style={{ border: '1px solid black' }}>Next Date</th>
-                            <th style={{ border: '1px solid black' }}>Next Mileage</th>
-                        </tr>
+                    <tr>
+                        <th>Car ID</th>
+                        <th>Event ID</th>
+                        <th>Event Description</th>
+                        <th>Event Date</th>
+                        <th>Event Mileage</th>
+                        <th>Repeatable</th>
+                        <th>Next Date</th>
+                        <th>Next Mileage</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {Object.keys(carEventData).map(function (keyName, keyIndex) {
-                            return (
-                                <tr key={carEventData[keyName]["ID"]}>
-                                    <td style={{ border: '1px solid black' }}>{carEventData[keyName]["CAR_ID"]}</td>
-                                    <td style={{ border: '1px solid black' }}>{carEventData[keyName]["ID"]}</td>
-                                    <td style={{ border: '1px solid black' }}>{carEventData[keyName]["EVENT_DESCRITION"]}</td>
-                                    <td style={{ border: '1px solid black' }}>{carEventData[keyName]["EVENT_DATE"]}</td>
-                                    <td style={{ border: '1px solid black' }}>{carEventData[keyName]["EVENT_MILLAGE"]}</td>
-                                    <td style={{ border: '1px solid black' }}>{carEventData[keyName]["EVENT_REPEATABLE"]}</td>
-                                    <td style={{ border: '1px solid black' }}>{carEventData[keyName]["NEXT_EVENT_DATE"]}</td>
-                                    <td style={{ border: '1px solid black' }}>{carEventData[keyName]["NEXT_EVENT_MILLAGE"]}</td>
-                                    <td style={{ border: '1px solid black' }}>
-                                        <button onClick={() => {
-                                            deleteServicehistory(carEventData[keyName]["ID"])
-                                        }}>Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                            );
-                        })}
+                    {Object.keys(carEventData).map(function (keyName, keyIndex) {
+                        return (
+                            <tr key={carEventData[keyName]["ID"]}>
+                                <td>{carEventData[keyName]["CAR_ID"]}</td>
+                                <td>{carEventData[keyName]["ID"]}</td>
+                                <td>{carEventData[keyName]["EVENT_DESCRITION"]}</td>
+                                <td>{carEventData[keyName]["EVENT_DATE"]}</td>
+                                <td>{carEventData[keyName]["EVENT_MILLAGE"]}</td>
+                                <td>{carEventData[keyName]["EVENT_REPEATABLE"].toString()}</td>
+                                <td>{carEventData[keyName]["NEXT_EVENT_DATE"]}</td>
+                                <td>{carEventData[keyName]["NEXT_EVENT_MILLAGE"]}</td>
+                                <td>
+                                    <button onClick={() => {
+                                        deleteServicehistory(carEventData[keyName]["ID"])
+                                    }}>Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        );
+                    })}
                     </tbody>
                 </table>
             </div>

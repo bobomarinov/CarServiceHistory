@@ -8,6 +8,8 @@ const CarAdd = () => {
     const [CAR_YEAR, setCarYear] = useState('');
     const [CAR_PLATE, setCarPlate] = useState('');
 
+    let address = '78.130.158.235';
+
     const refreshPage = () => {
         window.location.reload();
     }
@@ -43,12 +45,18 @@ const CarAdd = () => {
 
     const addCar = () => {
         axios
-            .post(`http://localhost:5000/api/cars?CAR_NAME=${CAR_NAME}&CAR_BRAND=${CAR_BRAND}&CAR_MODEL=${CAR_MODEL}&CAR_YEAR=${CAR_YEAR}&CAR_PLATE=${CAR_PLATE}`)
+            .post(`http://${address}:5000/api/cars?CAR_NAME=${CAR_NAME}&CAR_BRAND=${CAR_BRAND}&CAR_MODEL=${CAR_MODEL}&CAR_YEAR=${CAR_YEAR}&CAR_PLATE=${CAR_PLATE}`)
             .then(response => {
                 console.log('Car Data:', response.data);
                 //alet car add read string from response
-                alert('Car added successfully with ID: ' + response.data);
-                refreshPage();
+                if (response.data === 'Car with the same plate already exists') {
+                    alert(response.data);
+                }
+                else {
+                    alert('Car added successfully with ID: ' + response.data);
+                    refreshPage();
+                }
+
             })
             .catch((err) => {
                 console.log(err);
@@ -56,21 +64,39 @@ const CarAdd = () => {
     };
 
     return (
-        <div className="container">
-            <h1>Add Car</h1>
+        <div className="container"
+        style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            marginTop: '50px',
+            width: '20%'
+        }}>
             <a href="#" onClick={returnToHome}>Return to Home</a>
+            <h1>Add Car</h1>
+
                     <label>Car Name</label>
                     <input type="text" onChange={handleChange} />
+
+
                     <label>Car Brand</label>
                     <input type="text" onChange={handleChangeBrand} />
+
+
                     <label>Car Model</label>
                     <input type="text" onChange={handleChangeModel} />
+
+
                     <label>Car Year</label>
                     <input type="text" onChange={handleChangeYear} />
+
+
                     <label>Car Plate</label>
                     <input type="text" onChange={handleChangePlate} />
 
+
                 <button onClick={addCar}>Add Car</button>
+
             </div>
     );
 }

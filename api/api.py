@@ -47,6 +47,7 @@ def write_data(query):
 # by car id
 @app.route('/api/cars', methods=['GET', 'POST', 'DELETE', 'PUT'])
 def car():
+    '''
     if request.method == 'GET':
         print(request.args)
         if request.args.get('CAR_ID'):
@@ -61,6 +62,20 @@ def car():
             return df.to_json(orient='records')
         else:
             return "No car id provided"
+    '''
+    if request.method == 'GET':
+        print(request.args)
+        if request.args.get('CAR_ID'):
+            car_plate = request.args.get('CAR_ID')
+            query = "SELECT * FROM [CAR_HISTORY].[dbo].[CARS] WHERE CAR_PLATE = '" + car_plate+"'"
+            df = get_data(query)
+            return df.to_json(orient='records')
+        elif request.form['CAR_ID']:
+            car_id = request.form['CAR_ID']
+            query = "SELECT * FROM [CAR_HISTORY].[dbo].[CARS] WHERE CAR_PLATE = '" + car_id+"'"
+            return df.to_json(orient='records')
+        else:
+            return "No car id provided"
     elif request.method == 'POST':
         # if request.args is not emtpy
 
@@ -71,15 +86,21 @@ def car():
             car_model = request.args.get('CAR_MODEL')
             car_year = request.args.get('CAR_YEAR')
             car_plate = request.args.get('CAR_PLATE')
-            query = "INSERT INTO [CAR_HISTORY].[dbo].[CARS] (CAR_NAME, CAR_BRAND, CAR_MODEL, CAR_YEAR, CAR_PLATE) VALUES ('{}', '{}', '{}', '{}', '{}')".format(
-                car_name, car_brand, car_model, car_year, car_plate)
-            write_data(query)
-            #get the id of the car
-            query = "SELECT ID FROM [CAR_HISTORY].[dbo].[CARS] WHERE CAR_NAME = '{}' AND CAR_BRAND = '{}' AND CAR_MODEL = '{}' AND CAR_YEAR = '{}' AND CAR_PLATE = '{}'".format(
-                car_name, car_brand, car_model, car_year, car_plate)
-            df = get_data(query)
-            car_id = df['ID'][0]
-            return str(car_id)
+            #check if there is car with the same plate
+            query_check = "SELECT * FROM [CAR_HISTORY].[dbo].[CARS] WHERE CAR_PLATE = '" + car_plate+"'"
+            df = get_data(query_check)
+            if df.empty:
+                query = "INSERT INTO [CAR_HISTORY].[dbo].[CARS] (CAR_NAME, CAR_BRAND, CAR_MODEL, CAR_YEAR, CAR_PLATE) VALUES ('{}', '{}', '{}', '{}', '{}')".format(
+                    car_name, car_brand, car_model, car_year, car_plate)
+                write_data(query)
+                #get the id of the car
+                query = "SELECT ID FROM [CAR_HISTORY].[dbo].[CARS] WHERE CAR_NAME = '{}' AND CAR_BRAND = '{}' AND CAR_MODEL = '{}' AND CAR_YEAR = '{}' AND CAR_PLATE = '{}'".format(
+                    car_name, car_brand, car_model, car_year, car_plate)
+                df = get_data(query)
+                car_id = df['ID'][0]
+                return str(car_id)
+            else:
+                return "Car with the same plate already exists"
 
         elif request.form:
             print("Using form")
@@ -158,13 +179,21 @@ def event():
         df = get_data(query)
         return df.to_json(orient='records', date_format='iso')
     elif request.method == 'POST':
-        car_id = request.args.get('CAR_ID')
+        car_plate = request.args.get('CAR_ID')
         event_date = request.args.get('EVENT_DATE')
         event_millage = request.args.get('EVENT_MILLAGE')
         event_descrition = request.args.get('EVENT_DESCRITION')
-        event_repeatable = request.args.get('EVENT_REPEATABLE')
+        if request.args.get('EVENT_REPEATABLE') == 'on':
+            event_repeatable = 1
+        else:
+            event_repeatable = 0
         next_event_date = request.args.get('NEXT_EVENT_DATE')
         next_event_millage = request.args.get('NEXT_EVENT_MILLAGE')
+
+        # get the car id
+        query = "SELECT ID FROM [CAR_HISTORY].[dbo].[CARS] WHERE CAR_PLATE = '{}'".format(car_plate)
+        df = get_data(query)
+        car_id = df['ID'][0]
 
         query = "INSERT INTO [CAR_HISTORY].[dbo].[EVENTS] (CAR_ID, EVENT_DATE, EVENT_MILLAGE, EVENT_DESCRITION, EVENT_REPEATABLE, NEXT_EVENT_DATE, NEXT_EVENT_MILLAGE) VALUES ({}, '{}', {}, '{}', {}, '{}', {})".format(
             car_id, event_date, event_millage, event_descrition, event_repeatable, next_event_date, next_event_millage)
@@ -234,6 +263,7 @@ def events():
 # all events by car id
 @app.route('/api/events/car', methods=['GET'])
 def events_car():
+    """
     if request.args.get("CAR_ID"):
         car_id = request.args.get('CAR_ID')
         query = "SELECT * FROM [CAR_HISTORY].[dbo].[EVENTS] WHERE CAR_ID = {}".format(car_id)
@@ -247,7 +277,27 @@ def events_car():
         return df.to_json(orient='records', date_format='iso')
     else:
         return "ERROR"
-
+    """
+    if request.args.get("CAR_ID"):
+        car_plate = request.args.get('CAR_ID')
+        query1 = "SELECT * FROM [CAR_HISTORY].[dbo].[CARS] WHERE CAR_PLATE = '" + car_plate +"'"
+        #get car_id from car_plate
+        df = get_data(query1)
+        car_id = df['ID'].values[0].astype(str)
+        query2 = "SELECT * FROM [CAR_HISTORY].[dbo].[EVENTS] WHERE CAR_ID = '" + car_id +"'"
+        df = get_data(query2)
+        return df.to_json(orient='records', date_format='iso')
+    elif request.form['CAR_ID']:
+        car_plate = request.form['CAR_ID']
+        query1 = "SELECT * FROM [CAR_HISTORY].[dbo].[CARS] WHERE CAR_PLATE = '" + car_plate +"'"
+        #get car_plate from car_id
+        df = get_data(query1)
+        car_id = df['CAR_PLATE'][0]
+        query2 = "SELECT * FROM [CAR_HISTORY].[dbo].[EVENTS] WHERE CAR_ID = '" + car_id +"'"
+        df = get_data(query2)
+        return df.to_json(orient='records', date_format='iso')
+    else:
+        return "ERROR"
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
