@@ -47,22 +47,6 @@ def write_data(query):
 # by car id
 @app.route('/api/cars', methods=['GET', 'POST', 'DELETE', 'PUT'])
 def car():
-    '''
-    if request.method == 'GET':
-        print(request.args)
-        if request.args.get('CAR_ID'):
-            car_id = request.args.get('CAR_ID')
-            query = "SELECT * FROM [CAR_HISTORY].[dbo].[CARS] WHERE ID = " + car_id
-            df = get_data(query)
-            return df.to_json(orient='records')
-        elif request.form['CAR_ID']:
-            car_id = request.form['CAR_ID']
-            query = "SELECT * FROM [CAR_HISTORY].[dbo].[CARS] WHERE ID = " + car_id
-            df = get_data(query)
-            return df.to_json(orient='records')
-        else:
-            return "No car id provided"
-    '''
     if request.method == 'GET':
         print(request.args)
         if request.args.get('CAR_ID'):
@@ -117,14 +101,22 @@ def car():
             return "ERROR"
     elif request.method == 'DELETE':
         if request.args.get('CAR_ID'):
-            car_id = request.args.get('CAR_ID')
+            car_plate = request.args.get('CAR_ID')
+            #get car id by plate
+            query = "SELECT ID FROM [CAR_HISTORY].[dbo].[CARS] WHERE CAR_PLATE = '" + car_plate+"'"
+            df = get_data(query)
+            car_id = df['ID'].values[0].astype(str)
             pre_query = "DELETE FROM [CAR_HISTORY].[dbo].[EVENTS] WHERE CAR_ID = " + car_id
             query = "DELETE FROM [CAR_HISTORY].[dbo].[CARS] WHERE ID = " + car_id
             write_data(pre_query)
             write_data(query)
             return "OK"
         elif request.form['CAR_ID']:
-            car_id = request.form['CAR_ID']
+            car_plate = request.form['CAR_ID']
+            #get car id by plate
+            query = "SELECT ID FROM [CAR_HISTORY].[dbo].[CARS] WHERE CAR_PLATE = '" + car_plate+"'"
+            df = get_data(query)
+            car_id = df['ID'].values[0].astype(str)
             pre_query = "DELETE FROM [CAR_HISTORY].[dbo].[EVENTS] WHERE CAR_ID = " + car_id
             query = "DELETE FROM [CAR_HISTORY].[dbo].[CARS] WHERE ID = " + car_id
             write_data(pre_query)
@@ -263,21 +255,6 @@ def events():
 # all events by car id
 @app.route('/api/events/car', methods=['GET'])
 def events_car():
-    """
-    if request.args.get("CAR_ID"):
-        car_id = request.args.get('CAR_ID')
-        query = "SELECT * FROM [CAR_HISTORY].[dbo].[EVENTS] WHERE CAR_ID = {}".format(car_id)
-        df = get_data(query)
-        return df.to_json(orient='records', date_format='iso')
-    elif request.form['CAR_ID']:
-        car_id = request.form['CAR_ID']
-        query = "SELECT * FROM [CAR_HISTORY].[dbo].[EVENTS] WHERE CAR_ID = {}".format(car_id)
-        df = get_data(query)
-        print(df)
-        return df.to_json(orient='records', date_format='iso')
-    else:
-        return "ERROR"
-    """
     if request.args.get("CAR_ID"):
         car_plate = request.args.get('CAR_ID')
         query1 = "SELECT * FROM [CAR_HISTORY].[dbo].[CARS] WHERE CAR_PLATE = '" + car_plate +"'"

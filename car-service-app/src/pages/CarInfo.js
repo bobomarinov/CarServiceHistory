@@ -93,7 +93,7 @@ function CarInfo() {
                     margin: 'auto',
                     display: 'flex',
                     flexDirection: 'column',
-                    width: '10%'
+                    width: '50%'
                 }}>
                     <input type={'text'} id={'car-id'} name={'car-id'} value={carId} onChange={handleChange}
                            onKeyPress={event => {
@@ -111,7 +111,8 @@ function CarInfo() {
                     display: "flex",
                     alignContent: "center",
                     flexDirection: 'column',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    width: '50%'
                 }}>
                     <button onClick={() => {
                         window.location.href = '/add-car';

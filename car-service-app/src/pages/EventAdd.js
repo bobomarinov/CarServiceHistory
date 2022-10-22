@@ -82,7 +82,7 @@ const EventAdd = ({ }) => {
                 flexDirection: 'column',
                 justifyContent: 'center',
                 marginTop: '50px',
-                width: '30%'
+                width: '50%'
             }}>
                 <a href="#" onClick={returnToHome}>Return to Home</a>
                 <h1>Car Service History</h1>
@@ -103,7 +103,7 @@ const EventAdd = ({ }) => {
                     <input type="text" onChange={handleChangeDescription} />
 
                     <label>Event Repeatable</label>
-                    <input type="radio" onChange={handleChangeRepeatable} />
+                    <input type="checkbox" onChange={handleChangeRepeatable} />
 
                     <label>Next Event Date</label>
                     <input type="date" onChange={handleChangeNextEventDate} />

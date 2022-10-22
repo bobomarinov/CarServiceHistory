@@ -70,7 +70,7 @@ const CarAdd = () => {
             flexDirection: 'column',
             justifyContent: 'center',
             marginTop: '50px',
-            width: '20%'
+            width: '50%'
         }}>
             <a href="#" onClick={returnToHome}>Return to Home</a>
             <h1>Add Car</h1>
